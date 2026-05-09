@@ -41,9 +41,7 @@ class MainActivity : AppCompatActivity(), WifiP2pClient.Listener {
         binding.manualTcpBtn.setOnClickListener {
             tcp?.close()
             tcpHost = "192.168.137.1"
-            tcp = TcpClient("192.168.137.1", TCP_PORT) { line ->
-                runOnUiThread { appendLog("RX", line) }
-            }
+            tcp = TcpClient("192.168.137.1", TCP_PORT) { line -> appendLog("RX", line) }
             tcp?.connect()
             setStatus("manual TCP -> 192.168.137.1:$TCP_PORT")
             binding.sendBtn.isEnabled = true
@@ -117,9 +115,7 @@ class MainActivity : AppCompatActivity(), WifiP2pClient.Listener {
         }
         tcp?.close()
         tcpHost = goIp
-        tcp = TcpClient(goIp, TCP_PORT) { line ->
-            runOnUiThread { appendLog("RX", line) }
-        }
+        tcp = TcpClient(goIp, TCP_PORT) { line -> appendLog("RX", line) }
         tcp?.connect()
         binding.sendBtn.isEnabled = true
         binding.disconnectBtn.isEnabled = true
