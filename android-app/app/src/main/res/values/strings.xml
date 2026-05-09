@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">wifip2p</string>
+    <string name="discover">Discover</string>
+    <string name="connect">Connect</string>
+    <string name="manual_tcp">Manual TCP 137.1:8888</string>
+    <string name="send_test">Send test</string>
+    <string name="send">Send</string>
+    <string name="send_hint">Type message, then Send</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="status_idle">Idle</string>
+    <string name="log_label">Log (rx/tx)</string>
+</resources>

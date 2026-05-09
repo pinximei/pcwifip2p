@@ -1,0 +1,64 @@
+# ===== Build outputs =====
+build/
+out/
+*.exe
+*.dll
+*.lib
+*.obj
+*.pdb
+*.ilk
+*.exp
+
+# Android build outputs
+**/app/build/
+**/build/intermediates/
+**/build/outputs/
+*.apk
+*.aab
+*.dex
+
+# ===== Gradle =====
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+local.properties
+
+# ===== CMake =====
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+
+# ===== Visual Studio =====
+.vs/
+*.user
+*.suo
+*.sln.docstates
+
+# ===== Android Studio / IntelliJ =====
+.idea/
+*.iml
+captures/
+
+# ===== Logs / runtime artifacts =====
+*.log
+runtime/
+run/
+
+# ===== Debug screenshots / UI dumps =====
+*.png
+ui*.xml
+ui_*.xml
+.tmp_*
+
+# ===== Temp helper scripts (one-off debug) =====
+watch-both.ps1
+read_locked.ps1
+
+# ===== OS =====
+Thumbs.db
+.DS_Store
+desktop.ini
