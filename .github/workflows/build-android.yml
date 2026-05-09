@@ -1,6 +1,15 @@
 name: build-android
 
 on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'android-app/**'
+      - '.github/workflows/build-android.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'android-app/**'
   workflow_dispatch:
 
 jobs:

@@ -34,6 +34,9 @@ class MainActivity : AppCompatActivity(), WifiP2pClient.Listener {
         peerAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf())
         binding.peerList.adapter = peerAdapter
 
+        // Make logView Editable so appendLog can do O(1) tail trim via Editable.delete()
+        binding.logView.setText("", android.widget.TextView.BufferType.EDITABLE)
+
         p2p = WifiP2pClient(this)
 
         binding.discoverBtn.setOnClickListener { ensurePermissionsThen { p2p.discover() } }
@@ -135,23 +138,48 @@ class MainActivity : AppCompatActivity(), WifiP2pClient.Listener {
         binding.statusView.text = "status: $s"
     }
 
+    private var logLineCount = 0
+
     private fun appendLog(tag: String, line: String) {
-        runOnUiThread {
-            val ts = timeFmt.format(Date())
-            val arrow = when (tag) {
-                "RX" -> "<<"
-                "TX" -> ">>"
-                "WARN" -> "!!"
-                else -> "  "
+        val ts = timeFmt.format(Date())
+        val arrow = when (tag) {
+            "RX" -> "<<"
+            "TX" -> ">>"
+            "WARN" -> "!!"
+            else -> "  "
+        }
+        val newLine = "[$ts] $arrow $line\n"
+        binding.logView.post {
+            // Incremental append — TextView keeps its existing CharSequence,
+            // we only push the new tail. This is O(1) instead of the previous
+            // O(N) read-string + split + join + setText that caused the
+            // multi-second lag the user reported.
+            binding.logView.append(newLine)
+            logLineCount++
+            if (logLineCount > LOG_MAX_LINES) {
+                val text = binding.logView.text
+                val drop = (logLineCount - LOG_MAX_LINES_TARGET).coerceAtLeast(0)
+                var cut = 0
+                var seen = 0
+                for (i in 0 until text.length) {
+                    if (text[i] == '\n') {
+                        seen++
+                        if (seen == drop) { cut = i + 1; break }
+                    }
+                }
+                if (cut > 0) {
+                    (text as? android.text.Editable)?.delete(0, cut)
+                        ?: run { binding.logView.text = text.subSequence(cut, text.length) }
+                    logLineCount -= drop
+                }
             }
-            val newLine = "[$ts] $arrow $line"
-            val cur = binding.logView.text?.toString().orEmpty()
-            // Keep last ~120 lines to avoid unbounded growth.
-            val combined = if (cur.isEmpty()) newLine else "$cur\n$newLine"
-            val lines = combined.split('\n')
-            val trimmed = if (lines.size > 120) lines.takeLast(120).joinToString("\n") else combined
-            binding.logView.text = trimmed
-            binding.logScroll.post { binding.logScroll.fullScroll(android.view.View.FOCUS_DOWN) }
+            // Smooth-scroll only if the user is already near the bottom — avoids
+            // fighting them when they scroll up to inspect history.
+            val sv = binding.logScroll
+            val nearBottom = sv.getChildAt(0)?.let {
+                it.bottom - (sv.height + sv.scrollY) < 120
+            } ?: true
+            if (nearBottom) sv.post { sv.fullScroll(android.view.View.FOCUS_DOWN) }
         }
     }
 
@@ -190,5 +218,7 @@ class MainActivity : AppCompatActivity(), WifiP2pClient.Listener {
     companion object {
         private const val REQ_PERMS = 1001
         private const val TCP_PORT = 8888
+        private const val LOG_MAX_LINES = 200
+        private const val LOG_MAX_LINES_TARGET = 150
     }
 }

@@ -1,6 +1,15 @@
 name: build-windows
 
 on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'windows-app/**'
+      - '.github/workflows/build-windows.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'windows-app/**'
   workflow_dispatch:
 
 jobs:
